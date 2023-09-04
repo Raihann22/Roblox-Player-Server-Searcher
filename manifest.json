@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "Roblox Player Server Searcher",
+  "version": "1.0.0",
+  "author": "Raihan",
+  "permissions": [
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*.roblox.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.roblox.com/*"
+      ],
+      "js": [
+        "js/content.js",
+        "js/auto-check-update.js"
+      ],
+      "css": [
+        "css/eula.css",
+        "css/new-update.css"
+      ]
+    },
+    {
+      "matches": [
+        "https://*.roblox.com/games/*"
+      ],
+      "css": [
+        "css/search-layout.css"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "svg/*",
+        "html/*",
+        "fonts/*"
+      ],
+      "matches": [
+        "https://*.roblox.com/*"
+      ]
+    }
+  ]
+}
