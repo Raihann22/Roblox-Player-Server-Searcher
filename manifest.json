@@ -3,6 +3,12 @@
   "name": "Roblox Player Server Searcher",
   "version": "1.0.0",
   "author": "Raihan",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "permissions": [
     "scripting",
     "storage"
@@ -19,8 +25,7 @@
         "https://*.roblox.com/*"
       ],
       "js": [
-        "js/content.js",
-        "js/auto-check-update.js"
+        "js/content.js"
       ],
       "css": [
         "css/eula.css",
