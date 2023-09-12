@@ -39,31 +39,34 @@
 #RPSS-SearchButton {
     width: 38px;
     border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #bdbebe;
     border-radius: 0px 2px 2px 0px;
 }
 
-#RPSS-SearchButtonAvatar {
-    background-image: url("https://tr.rbxcdn.com/59f4dbf786e05b0900ec6dbffd296035/150/150/AvatarHeadshot/Png/isCircular");
-    background-size: 18.5px;
-    top: -12px;
-    left: 0.9px;
-    width: 18.5px;
-    height: 18.5px;
+#RPSS-SearchButtonAvatar, #RPSS-SearchButtonMagnifier {
     position: relative;
     display: inline-block;
     background-repeat: no-repeat;
 }
 
+#RPSS-SearchButtonAvatar {
+    background-image: url("https://tr.rbxcdn.com/59f4dbf786e05b0900ec6dbffd296035/150/150/AvatarHeadshot/Png/isCircular");
+    background-size: 18.5px;
+    top: -3.3px;
+    left: 1.2px;
+    width: 18.5px;
+    height: 18.5px;
+}
+
 #RPSS-SearchButtonMagnifier {
-    top: -1px;
-    left: 5.4px;
     width: 34px;
+    left: -8.3px;
     height: 34px;
-    bottom: 23.5px;
+    margin: -13px;
     filter: invert(1);
-    margin-left: -27px;
     background-size: 34px;
-    position: relative;
-    display: inline-block;
+    background-image: url("chrome-extension://__MSG_@@extension_id__/svg/magnifier.svg");
 }
