@@ -1,21 +1,21 @@
 @font-face {
     font-family: "Inter Black";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-Black.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Black.ttf");
 }
 
 @font-face {
     font-family: "Inter ExtraBold";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-ExtraBold.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-ExtraBold.ttf");
 }
 
 @font-face {
     font-family: "Inter SemiBold";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-SemiBold.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-SemiBold.ttf");
 }
 
 @font-face {
     font-family: "Inter Regular";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-Regular.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Regular.ttf");
 }
 
 

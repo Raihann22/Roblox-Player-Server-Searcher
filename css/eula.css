@@ -1,21 +1,21 @@
 @font-face {
     font-family: "Inter ExtraBold";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-ExtraBold.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-ExtraBold.ttf");
 }
 
 @font-face {
     font-family: "Inter SemiBold";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-SemiBold.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-SemiBold.ttf");
 }
 
 @font-face {
     font-family: "Inter Regular";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-Regular.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Regular.ttf");
 }
 
 @font-face {
     font-family: "Inter Medium";
-    src: url("chrome-extension://__MSG_@@extension_id__/fonts/Inter-Medium.ttf");
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Medium.ttf");
 }
 
 
@@ -87,7 +87,7 @@
 }
 
 #RPSS-AGMT-Agree:checked {
-    background-image: url('chrome-extension://__MSG_@@extension_id__/svg/check.svg');
+    background-image: url('chrome-extension://__MSG_@@extension_id__/resources/svg/check.svg');
     background-size: 17px 17px;
     background-repeat: no-repeat;
     background-position: center;

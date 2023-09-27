@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Roblox Player Server Searcher",
-  "version": "1.0.0",
+  "description": "The world's best and safest Roblox Player Server Searcher! [ Give us a ⭐ on GitHub ]",
+  "version": "2.0.0",
   "author": "Raihan",
   "icons": {
     "16": "icons/icon16.png",
@@ -11,7 +12,8 @@
   },
   "permissions": [
     "scripting",
-    "storage"
+    "storage",
+    "management"
   ],
   "host_permissions": [
     "https://*.roblox.com/*"
@@ -36,17 +38,20 @@
       "matches": [
         "https://*.roblox.com/games/*"
       ],
+      "js": [
+        "js/page-games.js"
+      ],
       "css": [
-        "css/search-layout.css"
+        "css/search-layout.css",
+        "css/joining.css",
+        "css/player-in-other-game.css"
       ]
     }
   ],
   "web_accessible_resources": [
     {
       "resources": [
-        "svg/*",
-        "html/*",
-        "fonts/*"
+        "resources/*"
       ],
       "matches": [
         "https://*.roblox.com/*"

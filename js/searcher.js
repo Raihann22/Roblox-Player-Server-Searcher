@@ -1,16 +1,16 @@
 const sleep = time => new Promise(x => setTimeout(x, time));
 
 const userInput = document.getElementById("RPSS-UserInput");
-const progressBar = document.getElementById("RPSS-ProgressBar");
 const searchButton = document.getElementById("RPSS-SearchButton");
-const placeId = Number((window.location.href).match(/\/games\/(\d+)\//)[1]);
-
+const warningContainer = document.getElementById("RPSS-PSA-Container");
+const warningText = document.getElementById("RPSS-PSA-Warning");
 
 userInput.addEventListener("input", () => {
     userInput.value = userInput.value.replace(/[^a-zA-Z0-9_]/g, '');
 
     searchButton.children[0].style.backgroundImage = "url('https://tr.rbxcdn.com/59f4dbf786e05b0900ec6dbffd296035/150/150/AvatarHeadshot/Png/isCircular')";
-    progressBar.style.width = "0%";
+    PROGRESS_BAR.style.width = "0%";
+    warningContainer.style.transform = "translateX(180px)";
 
     if (userInput.value.length < 3 || userInput.value.length > 20) {
         searchButton.style.cursor = "not-allowed";
@@ -38,56 +38,48 @@ searchButton.addEventListener("click", async () => {
              *  4 = No Server.
              *  5 = Player not in this game.
              *  6 = Player in a different game.
-             * 
-             * This is for future alert features
              */
 
             case 0:
-                await sleep(500);
-                alert("User doesn't exist!");
+                warningText.innerHTML = "User doesn't exist!";
                 break;
 
             case 1:
-                await sleep(500);
-                alert("Player is offline!");
+                warningText.innerHTML = "Player is offline!";
                 break;
 
             case 2:
-                await sleep(500);
-                alert("Player is online, but not in a game.");
+                warningText.innerHTML = "Player is online, but not in a game.";
                 break;
 
             case 3:
-                await sleep(500);
-                alert("Player is in Roblox Studio!");
+                warningText.innerHTML = "Player is in Roblox Studio!";
                 break;
 
             case 4:
-                await sleep(500);
-                alert("No Servers Found!");
+                warningText.innerHTML = "No Servers Found!";
                 break;
 
             case 5:
-                await sleep(500);
-                alert("Player not found in this game!");
+                warningText.innerHTML = "Player not found in this game!";
                 break;
 
             case 6:
-                await sleep(500);
-                alert(`Player is in a different game: ${result[1].lastLocation}`);
+                PLAYER_IN_OTHER_GAME_JS.showAlert(result[1], result[2], result[3]);
                 break;
 
             default:
                 // player found!
-                progressBar.style.width = "100%";
+                PROGRESS_BAR.style.width = "100%";
 
                 const gameId = result[0].toString().length > 1 ? result[0] : result[1];
-                const joinButton = document.createElement("button");
-                joinButton.setAttribute("onclick", `Roblox.GameLauncher.joinGameInstance(${placeId}, "${gameId}")`);
-                joinButton.click();
-                joinButton.remove();
+                const avatar = result[0].toString().length > 1 ? result[1] : result[2];
+                const username = result[0].toString().length > 1 ? result[2] : result[3];
+
+                JOIN_JS.join(gameId, avatar, username);
                 break;
         }
+        if (typeof result[0] === "number" && result[0] <= 5) warningContainer.style.transform = "translateX(0px)";
 
         disableInptBtn(false);
     });
@@ -95,8 +87,8 @@ searchButton.addEventListener("click", async () => {
 
 
 
-async function showEULA(RPSS) {
-    await fetch(chrome.runtime.getURL("html/eula.html")).then(result => result.text()).then(html => {
+function showEULA(RPSS) {
+    fetch(chrome.runtime.getURL("resources/html/eula.html")).then(result => result.text()).then(html => {
         const eulaAlert = document.createElement("div");
         eulaAlert.innerHTML = html;
 
@@ -143,13 +135,17 @@ function disableInptBtn(disable) {
 
 
 async function findPlayer() {
-    let targetPlayer = userInput.value;
-    const playerAvatarHeadshot = await fetchPlayerAvatarHeadshot();
+    PROGRESS_BAR.style.width = `0%`
+    warningContainer.style.transform = "translateX(180px)";
 
+    let targetPlayer = userInput.value;
+    let username;
+    const playerAvatarHeadshot = await fetchPlayerAvatarHeadshot();
     if (!targetPlayer) return [0];
 
+    const avatarImageUrl = playerAvatarHeadshot.state === "Completed" ? playerAvatarHeadshot.imageUrl : chrome.runtime.getURL("resources/svg/error-404.svg");
     const searchButtonAvatar = document.getElementById("RPSS-SearchButtonAvatar");
-    searchButtonAvatar.style.backgroundImage = `url(${playerAvatarHeadshot})`;
+    searchButtonAvatar.style.backgroundImage = `url(${avatarImageUrl})`;
 
     const playerStatus = await checkStatus();
     if (playerStatus[0] !== 4) return playerStatus;
@@ -162,6 +158,7 @@ async function findPlayer() {
 
     async function fetchPlayerAvatarHeadshot() {
         if (!/^\d+$/.test(targetPlayer)) {  // getting target's userId if searching using username
+            username = targetPlayer;
             await fetch("https://users.roblox.com/v1/usernames/users", {
                 method: "POST",
                 headers: { "accept": "application/json", "Content-Type": "application/json" },
@@ -172,10 +169,11 @@ async function findPlayer() {
             }).then(x => x.json()).then(res => targetPlayer = res.data[0]?.id);
         }
         if (!targetPlayer) return;
+        if (!username) username = await fetch(`https://users.roblox.com/v1/users/${targetPlayer}`).then(x => x.json()).then(res => res.name);
 
         return await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${targetPlayer}&size=150x150&format=Png&isCircular=true`).then(x => x.json()).then(res => {
-            if (res.errors) return targetPlayer = undefined;    // if userId doesn't exist
-            return res.data[0].imageUrl
+            if (res.errors || res.data.length === 0) return targetPlayer = undefined;    // if userId doesn't exist
+            return res.data[0];
         });
     }
 
@@ -191,13 +189,15 @@ async function findPlayer() {
                 } else {
                     status.push(4);
                     if (statusPlaceId !== null) {
-                        if (statusPlaceId !== placeId) {
+                        if (statusPlaceId !== PLACE_ID) {
                             status[0] = 6;
                             status.push(response);
+                            PROGRESS_BAR.style.width = "50%";
                         } else {
                             status[0] = 7;
                             status.push(response.gameId);
                         }
+                        status.push(avatarImageUrl, username);
                     }
                 }
 
@@ -207,7 +207,7 @@ async function findPlayer() {
     }
 
     async function fetchServers(nextPageCursor) {
-        await fetch(`https://games.roblox.com/v1/games/${placeId}/servers/0?limit=100&cursor=${nextPageCursor}`).then(x => x.json()).then(async servers => {
+        await fetch(`https://games.roblox.com/v1/games/${PLACE_ID}/servers/0?limit=100&cursor=${nextPageCursor}`).then(x => x.json()).then(async servers => {
             const { nextPageCursor, data } = servers;
 
             for (let server of data) {
@@ -223,7 +223,7 @@ async function findPlayer() {
                 }
             }
 
-            if (!nextPageCursor) return
+            if (!nextPageCursor) return;
 
             await sleep(50)
             return fetchServers(nextPageCursor);
@@ -236,7 +236,7 @@ async function findPlayer() {
         const onePercent = allTokens.length / 100;
         let readyToFetch = [];
         let checked = 0;
-        let foundUser;
+        let foundUser = [avatarImageUrl, username];
 
         for (let i = 0; i < allTokens.length; i++) {
             checked++
@@ -248,19 +248,19 @@ async function findPlayer() {
                     body: JSON.stringify(readyToFetch)
                 }).then(x => x.json()).then(res => {
                     res.data.forEach(data => {
-                        if (data.imageUrl === playerAvatarHeadshot) {
-                            foundUser = data.requestId;
+                        if (data.imageUrl === avatarImageUrl) {
+                            foundUser.unshift(data.requestId);
                             i = allTokens.length;
                         }
                     });
                 });
 
-                progressBar.style.width = `${Math.floor(i / onePercent) + 1}%`
+                PROGRESS_BAR.style.width = `${Math.floor(i / onePercent) + 1}%`;
                 readyToFetch = [];
                 checked = 0;
-                await sleep(50)
+                await sleep(50);
             }
         }
-        return [foundUser ? foundUser : 5];
+        return foundUser[2] ? foundUser : [5];
     }
 }
