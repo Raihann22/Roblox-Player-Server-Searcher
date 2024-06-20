@@ -250,6 +250,7 @@ async function findPlayer() {
     async function checkUser(arr, index, allTokens, attempts = 1) {
       if (debug) console.log("Fetching batch " + index + "| Attempt No: " + attempts);
       if (attempts > 5) {
+        //If number of attempts exceeds 5, then don't retry.
         console.error("Failed to fetch batch " + index);
         return;
       }
@@ -272,7 +273,7 @@ async function findPlayer() {
       } catch (error) {
         if (debug)
           console.log("Batch " + index + " Failed due to 'Too many request' Please keep maxParrallelRequest at/below 25, retrying");
-
+        //Retry after 50ms
         await sleep(50);
         await checkUser(arr, index, allTokens, attempts + 1);
       }
@@ -281,7 +282,6 @@ async function findPlayer() {
     const batchSize = 100;
     let currentIndex = 0;
     const maxParrallelRequest = 25;
-
     while (currentIndex < allTokens.length) {
       const slices = [];
       for (let requestNo = 0; requestNo < maxParrallelRequest; requestNo++) {
@@ -289,7 +289,6 @@ async function findPlayer() {
         if (start >= allTokens.length) break;
         slices.push(allTokens.slice(start, Math.min(start + batchSize, allTokens.length)));
       }
-
       let t1 = Date.now();
       await Promise.all(slices.map(checkUser));
 
