@@ -247,7 +247,7 @@ async function findPlayer() {
     const onePercent = allTokens.length / 100;
     let foundUser = [avatarImageUrl, username];
 
-    async function checkUser(arr, index, allTokens, attempts = 1) {
+    async function checkUser(slice, index, slices, attempts = 1) {
       if (debug) console.log("Fetching batch " + index + "| Attempt No: " + attempts);
       if (attempts > 5) {
         //If number of attempts exceeds 5, then don't retry.
@@ -259,7 +259,7 @@ async function findPlayer() {
         const response = await fetch("https://thumbnails.roblox.com/v1/batch", {
           method: "POST",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify(arr),
+          body: JSON.stringify(slice),
         });
         const res = await response.json();
         if (res.data === undefined) throw new Error("No response data");
@@ -275,7 +275,7 @@ async function findPlayer() {
           console.log("Batch " + index + " Failed due to 'Too many request' Please keep maxParrallelRequest at/below 25, retrying");
         //Retry after 50ms
         await sleep(50);
-        await checkUser(arr, index, allTokens, attempts + 1);
+        await checkUser(slice, index, slices, attempts + 1);
       }
     }
 
