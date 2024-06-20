@@ -232,35 +232,42 @@ async function findPlayer() {
 
     async function fetchTokens() {
         if (allTokens.length === 0) return [4];
-
+    
+        let isFound = false;
         const onePercent = allTokens.length / 100;
-        let readyToFetch = [];
-        let checked = 0;
         let foundUser = [avatarImageUrl, username];
-
-        for (let i = 0; i < allTokens.length; i++) {
-            checked++
-            readyToFetch.push(allTokens[i]);
-            if (checked === 100 || i === allTokens.length - 1) {
-                await fetch('https://thumbnails.roblox.com/v1/batch', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(readyToFetch)
-                }).then(x => x.json()).then(res => {
-                    res.data.forEach(data => {
-                        if (data.imageUrl === avatarImageUrl) {
-                            foundUser.unshift(data.requestId);
-                            i = allTokens.length;
-                        }
-                    });
-                });
-
-                PROGRESS_BAR.style.width = `${Math.floor(i / onePercent) + 1}%`;
-                readyToFetch = [];
-                checked = 0;
-                await sleep(50);
-            }
+    
+        async function checkUser(arr) {
+            const response = await fetch("https://thumbnails.roblox.com/v1/batch", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify(arr)
+            });
+            const res = await response.json();
+            res.data.forEach((data) => {
+                if (data.imageUrl === avatarImageUrl) {
+                    foundUser.unshift(data.requestId);
+                    isFound = true;  // Mark user as found
+                }
+            });
         }
-        return foundUser[2] ? foundUser : [5];
+    
+        for (let i = 600; i < allTokens.length; i += 600) {
+            const slices = [
+                allTokens.slice(i - 600, i - 500),
+                allTokens.slice(i - 500, i - 400),
+                allTokens.slice(i - 400, i - 300),
+                allTokens.slice(i - 300, i - 200),
+                allTokens.slice(i - 200, i - 100),
+                allTokens.slice(i - 100, i)
+            ];
+            await Promise.all(slices.map(checkUser));
+            if (isFound) return foundUser;
+            PROGRESS_BAR.style.width = `${Math.floor(i / onePercent) + 1}%`;
+            await sleep(50);   
+        }
+    
+        return [5];
     }
+    
 }
