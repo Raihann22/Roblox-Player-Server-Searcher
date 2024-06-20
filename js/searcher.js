@@ -268,7 +268,7 @@ async function findPlayer() {
             isFound = true; // Mark user as found
           }
         });
-        if (debug) console.log(`Fetching batch ${index} in ${attempts} attempt(s)`);
+        if (debug) console.log(`Fetched batch ${index} in ${attempts} attempt(s)`);
       } catch (error) {
         if (debug)
           console.log("Batch " + index + " Failed due to 'Too many request' Please keep maxParrallelRequest at/below 25, retrying");
