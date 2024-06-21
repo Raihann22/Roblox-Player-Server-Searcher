@@ -232,35 +232,58 @@ async function findPlayer() {
 
     async function fetchTokens() {
         if (allTokens.length === 0) return [4];
-
         const onePercent = allTokens.length / 100;
-        let readyToFetch = [];
-        let checked = 0;
         let foundUser = [avatarImageUrl, username];
-
-        for (let i = 0; i < allTokens.length; i++) {
-            checked++
-            readyToFetch.push(allTokens[i]);
-            if (checked === 100 || i === allTokens.length - 1) {
-                await fetch('https://thumbnails.roblox.com/v1/batch', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(readyToFetch)
-                }).then(x => x.json()).then(res => {
-                    res.data.forEach(data => {
-                        if (data.imageUrl === avatarImageUrl) {
-                            foundUser.unshift(data.requestId);
-                            i = allTokens.length;
-                        }
-                    });
+        const maxParallelRequests = 20;
+        //checkUserBatch() returns true if the user is found, else returns false.
+        async function checkUserBatch(slice, attempts = 1) {
+            if (attempts > 3) return false; // Fail after 3 attempts
+            try {
+                const response = await fetch("https://thumbnails.roblox.com/v1/batch", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json"
+                    },
+                    body: JSON.stringify(slice)
                 });
-
-                PROGRESS_BAR.style.width = `${Math.floor(i / onePercent) + 1}%`;
-                readyToFetch = [];
-                checked = 0;
+                const res = await response.json();
+                if (!res.data) throw new Error("No response data");
+                const targetUserData = res.data.find(data => data.imageUrl === avatarImageUrl);
+                if (targetUserData) {
+                    foundUser.unshift(targetUserData.requestId);
+                    return true;//User found
+                }
+                return false;//User not found in this slice
+            } catch (error) {
                 await sleep(50);
+                return await checkUserBatch(slice, attempts + 1);//Retry
             }
         }
-        return foundUser[2] ? foundUser : [5];
+        //processSlices() returns true if any checkUserBatch() returned true otherwise returns false.
+        async function processSlices(slices) {
+            const results = await Promise.all(slices.map(slice => checkUserBatch(slice)));
+            return results.some(result => result === true);
+        }
+        for (let currentIndex = 0;
+            currentIndex < allTokens.length;
+            currentIndex += maxParallelRequests * 100) {
+            /*
+            slice = [allTokens[x], ...98x , allTokens[ (x+99) | (allTokens.length-1) ] ]
+            slices = [ slice, ...(maxParrallelRequests-2)x, slice ];
+            */
+            const slices = [];
+            for (let requestIndex = 0; requestIndex < maxParallelRequests; requestIndex++) {
+                const start = currentIndex + requestIndex * 100;
+                if (start >= allTokens.length) break;
+                slices.push(allTokens.slice(start, Math.min(start + 100, allTokens.length)));
+            }
+            const userFound = await processSlices(slices);
+            if (userFound) return foundUser;
+            PROGRESS_BAR.style.width = `${Math.ceil(currentIndex / onePercent)}%`;
+        }
+        //Searched allTokens but couldn't find user, ensure the progress bar reaches 100%
+        PROGRESS_BAR.style.width = '100%';
+        return [5];
     }
 }
