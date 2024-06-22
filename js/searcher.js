@@ -235,6 +235,7 @@ async function findPlayer() {
         const onePercent = allTokens.length / 100;
         let foundUser = [avatarImageUrl, username];
         const maxParallelRequests = 20;
+        let checkedTokens = 0;
         //checkUserBatch() returns true if the user is found, else returns false.
         async function checkUserBatch(slice, attempts = 1) {
             if (attempts > 3) return false; // Fail after 3 attempts
@@ -250,6 +251,10 @@ async function findPlayer() {
                 const res = await response.json();
                 if (!res.data) throw new Error("No response data");
                 const targetUserData = res.data.find(data => data.imageUrl === avatarImageUrl);
+                //All tokens in the given slice are checked without any error
+                checkedTokens += slice.length;
+                //Updating progress bar
+                PROGRESS_BAR.style.width = `${Math.ceil(checkedTokens / onePercent)}%`;
                 if (targetUserData) {
                     foundUser.unshift(targetUserData.requestId);
                     return true;//User found
@@ -280,7 +285,6 @@ async function findPlayer() {
             }
             const userFound = await processSlices(slices);
             if (userFound) return foundUser;
-            PROGRESS_BAR.style.width = `${Math.ceil(currentIndex / onePercent)}%`;
         }
         //Searched allTokens but couldn't find user, ensure the progress bar reaches 100%
         PROGRESS_BAR.style.width = '100%';
