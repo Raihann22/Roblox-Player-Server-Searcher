@@ -19,6 +19,7 @@ userInput.addEventListener("input", () => {
 
     searchButton.children[0].style.backgroundImage = "url('https://tr.rbxcdn.com/59f4dbf786e05b0900ec6dbffd296035/150/150/AvatarHeadshot/Png/isCircular')";
     PROGRESS_BAR.style.width = "0%";
+    PROGRESS_BAR.style.animation = "none";
     warningContainer.style.transform = "translateX(180px)";
 
     if (userInput.value.length < 3 || userInput.value.length > 20) {
@@ -152,11 +153,11 @@ async function findPlayer() {
 
     const playerStatus = await checkStatus();
     if (playerStatus[0] !== 4) return playerStatus;
-
+    const targetPlayerToken = localStorage.getItem(targetPlayer);
+    if(targetPlayerToken) return await findByToken();//If target player token is saved
+    //else do normal search
     let allTokens = [];
-    PROGRESS_BAR.style.animation = "IndeterminateLoading 1s cubic-bezier(.4,.6,.6,.4) infinite alternate";
-    await fetchServers("");
-    PROGRESS_BAR.style.animation = "none";
+    await fetchServers();
     return await fetchTokens();
 
 
@@ -215,7 +216,11 @@ async function findPlayer() {
         /*
         Using do while loop to avoid maximum stack error due to recursion.
         Chrome 126: 7,837 <-- Stack limit with try catch
-        -Too many recursion call, each recursive call adds a new frame to the call stack, consuming more memory.
+        -Too many recursion call, each recursive call adds a new frame to the call stack, consuming more memory. 
+        
+        requestId will now contain server.id along with playerToken sperated by "." so when the thumbnailURL matches,
+         target player's token could be retrieved easily from their thumbnail response data.
+       
         */
         async function fetchServerBatch(cursor, attempt = 1) {
             if (attempt > 3) return null; //Failed to fetch next batch terminating the do-while loop. 
@@ -226,7 +231,7 @@ async function findPlayer() {
                 allTokens.push(
                     ...servers.flatMap(server =>
                         server.playerTokens.map(playerToken => ({
-                            requestId: server.id,
+                            requestId: server.id+"."+playerToken,// commented above
                             token: playerToken,
                             type: "AvatarHeadshot",
                             size: "150x150",
@@ -242,10 +247,12 @@ async function findPlayer() {
                 return await fetchServerBatch(cursor, attempt + 1)
             }
         }
+        PROGRESS_BAR.style.animation = "IndeterminateLoading 1s cubic-bezier(.4,.6,.6,.4) infinite alternate";
         let nextPageCursor = "";
         do {
             nextPageCursor = await fetchServerBatch(nextPageCursor);
         } while (nextPageCursor);
+        PROGRESS_BAR.style.animation = "none";
     }
 
     async function fetchTokens() {
@@ -274,7 +281,10 @@ async function findPlayer() {
                 //Updating progress bar
                 PROGRESS_BAR.style.width = `${Math.ceil(checkedTokens / onePercent)}%`;
                 if (targetUserData) {
-                    foundUser.unshift(targetUserData.requestId);
+                    const [serverId, playerToken] = targetUserData.requestId.split(".");//targetUserData.requestId = serverId+"."+playerToken;
+                    //Save player token for later use, this would avoid the need to fetch and compare thumbnails again for this particular user.
+                    localStorage.setItem(targetPlayer, playerToken);
+                    foundUser.unshift(serverId);
                     return true;//User found
                 }
                 return false;//User not found in this slice
@@ -307,6 +317,55 @@ async function findPlayer() {
         //Searched allTokens but couldn't find user, ensure the progress bar reaches 100%
         PROGRESS_BAR.style.width = '100%';
         return [searchStatus.PLAYER_NOT_IN_GAME];
+    }
+    /*
+    findByToken() finds player using their token.
+    -When target player is found sucessfully in a game, their {token} is saved as value with key {userID} in local storage.
+    -This woud eliminate the need to:
+    -- Fetch and compare Thumbnails URL.
+    -- Fetch all the servers.
+
+    */
+    async function findByToken() {
+        let serversChecked = 0;
+        let playersChecked = 0;
+        let foundUser = [avatarImageUrl, username];
+        let isFound = false;
+        async function fetchServerBatch(cursor, attempt = 1) {
+            if (attempt > 3) return null; //Failed to fetch next batch terminating the do-while loop. 
+            try {
+                const response = await fetch(`https://games.roblox.com/v1/games/${PLACE_ID}/servers/0?limit=100&cursor=${cursor}`);
+                const res = await response.json();
+                const servers = res.data;
+                for (let i = 0; i < servers.length; i++) {
+                    const server = servers[i];
+   
+                    serversChecked++;
+                    playersChecked += server.playerTokens.length;
+   
+                    //Check if targetPlayerToken is in the array of res.data[i].playerTokens
+                    if (server.playerTokens.indexOf(targetPlayerToken) === -1) continue;
+                    //Player found
+                    foundUser.unshift(server.id);
+                    PROGRESS_BAR.style.animation = "none";
+                    isFound = true;
+                }
+                
+                return res.nextPageCursor;
+            } catch (error) {
+                console.error(error)
+                await sleep(100);
+                return await fetchServerBatch(cursor, attempt + 1)
+            }
+        }
+        PROGRESS_BAR.style.animation = "loading 1s cubic-bezier(.4,.6,.6,.4) infinite alternate"
+        let nextPageCursor = "";
+        do {
+            nextPageCursor = await fetchServerBatch(nextPageCursor);
+            if(isFound) return foundUser;
+        } while (nextPageCursor);
+        PROGRESS_BAR.style.animation = "none";
+        return [serversChecked > 0 ? searchStatus.PLAYER_NOT_IN_GAME : searchStatus.NO_SERVER];
     }
 }catch(e){
         console.error(e)
