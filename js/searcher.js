@@ -64,7 +64,7 @@ searchButton.addEventListener("click", async () => {
                 warningText.innerHTML = "Player not found in this game!";
                 break;
             case searchStatus.UNEXPECTED_ERROR:
-                warningText.innerHTML = "Error occured, Try again!";
+                warningText.innerHTML = "Error occurred, Try again!";
                 break;
 
             case searchStatus.PLAYER_IN_OTHER_GAME:
