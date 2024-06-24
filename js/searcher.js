@@ -211,28 +211,41 @@ async function findPlayer() {
         });
     }
 
-    async function fetchServers(nextPageCursor) {
-        await fetch(`https://games.roblox.com/v1/games/${PLACE_ID}/servers/0?limit=100&cursor=${nextPageCursor}`).then(x => x.json()).then(async servers => {
-            const { nextPageCursor, data } = servers;
-
-            for (let server of data) {
-                for (let playerToken of server.playerTokens) {
-                    allTokens.push({
-                        requestId: server.id,
-                        token: playerToken,
-                        type: "AvatarHeadshot",
-                        size: "150x150",
-                        format: "png",
-                        isCircular: true
-                    });
-                }
+    async function fetchServers() {
+        /*
+        Using do while loop to avoid maximum stack error due to recursion.
+        Chrome 126: 7,837 <-- Stack limit with try catch
+        -Too many recursion call, each recursive call adds a new frame to the call stack, consuming more memory.
+        */
+        async function fetchServerBatch(cursor, attempt = 1) {
+            if (attempt > 3) return null; //Failed to fetch next batch terminating the do-while loop. 
+            try {
+                const response = await fetch(`https://games.roblox.com/v1/games/${PLACE_ID}/servers/0?limit=100&cursor=${cursor}`);
+                const res = await response.json();
+                const servers = res.data;
+                allTokens.push(
+                    ...servers.flatMap(server =>
+                        server.playerTokens.map(playerToken => ({
+                            requestId: server.id,
+                            token: playerToken,
+                            type: "AvatarHeadshot",
+                            size: "150x150",
+                            format: "png",
+                            isCircular: true
+                        }))
+                    )
+                );
+                return res.nextPageCursor
+            } catch (error) {
+                console.error(error)
+                await sleep(100);
+                return await fetchServerBatch(cursor, attempt + 1)
             }
-
-            if (!nextPageCursor) return;
-
-            await sleep(50)
-            return fetchServers(nextPageCursor);
-        })
+        }
+        let nextPageCursor = "";
+        do {
+            nextPageCursor = await fetchServerBatch(nextPageCursor);
+        } while (nextPageCursor);
     }
 
     async function fetchTokens() {
