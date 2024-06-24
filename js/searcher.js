@@ -154,7 +154,9 @@ async function findPlayer() {
     if (playerStatus[0] !== 4) return playerStatus;
 
     let allTokens = [];
+    PROGRESS_BAR.style.animation = "IndeterminateLoading 1s cubic-bezier(.4,.6,.6,.4) infinite alternate";
     await fetchServers("");
+    PROGRESS_BAR.style.animation = "none";
     return await fetchTokens();
 
 

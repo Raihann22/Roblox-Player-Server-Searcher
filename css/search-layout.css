@@ -7,9 +7,18 @@
     font-family: "Inter Regular";
     src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Regular.ttf");
 }
-
-
-
+@keyframes IndeterminateLoading {
+    0% {
+      width: 20%;
+      border-radius: 5px;
+      margin-left: 0%;
+    }
+    100% {
+      width: 20%;
+      border-radius: 5px;
+      margin-left: 80%;
+    }
+  }
 #RPSS-Container {
     display: flex;
     margin-left: auto;
