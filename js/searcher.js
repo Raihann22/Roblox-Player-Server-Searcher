@@ -358,7 +358,7 @@ async function findPlayer() {
                 return await fetchServerBatch(cursor, attempt + 1)
             }
         }
-        PROGRESS_BAR.style.animation = "loading 1s cubic-bezier(.4,.6,.6,.4) infinite alternate"
+        PROGRESS_BAR.style.animation = "IndeterminateLoading 1s cubic-bezier(.4,.6,.6,.4) infinite alternate"
         let nextPageCursor = "";
         do {
             nextPageCursor = await fetchServerBatch(nextPageCursor);
