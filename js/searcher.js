@@ -94,6 +94,7 @@ function showEULA(RPSS) {
 
         const body = document.body;
         body.firstChild ? body.insertBefore(eulaAlert, body.firstChild) : body.appendChild(eulaAlert);
+        eulaAlert.children[0].style.height = `${eulaAlert.children[0].offsetHeight * 0.8}px`;
 
         const agreeCheckbox = document.getElementById("RPSS-AGMT-Agree");
         const countdown = document.getElementById("RPSS-AGMT-Countdown");
@@ -101,6 +102,8 @@ function showEULA(RPSS) {
         let countdownInterval;
         agreeCheckbox.addEventListener("change", (event) => {
             clearInterval(countdownInterval);
+
+            countdown.style.visibility = countdown.style.visibility === "visible" ? "" : "visible";
 
             if (event.target.checked) {
                 let secondsRemaining = 10;
@@ -117,8 +120,6 @@ function showEULA(RPSS) {
                         chrome.storage.local.set(RPSS);
                     }
                 }, 1000);
-            } else {
-                countdown.innerText = '';
             }
         });
     });

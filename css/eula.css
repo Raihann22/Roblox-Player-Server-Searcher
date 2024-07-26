@@ -21,98 +21,114 @@
 
 
 #RPSS-AGMT-Container {
-    width: 860px;
-    height: 802px;
-    background-color: #0D1117;
-    border: 3px solid #ffffff;
-    transform: translate(-50%, -50%);
+    border: 2px solid #555555;
+    height: 100%;
+    max-width: 860px;
     position: fixed;
-    z-index: 1051;
-    top: 50%;
-    left: 50%;
-}
-
-#RPSS-AGMT-Title {
-    position: relative;
+    inset: 0px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #0d1117;
+    color: #fff;
     font-family: "Inter ExtraBold";
+    z-index: 1051;
+    padding: 25px;
+    font-size: 20px;
+}
+
+#RPSS-AGMT-EULA-Container {
+    overflow: auto;
+    padding: 12px;
+    background-color: #282828;
+}
+
+#RPSS-AGMT-EULA-Container div:not(:first-child) {
+    margin-top: 40px;
+}
+
+#RPSS-AGMT-EULA-Container h1 {
     font-size: 23px;
-    top: 30px;
 }
 
-.RPSS-AGMT-Text {
-    position: relative;
-    font-family: "Inter Regular";
-    width: 800px;
-    font-size: 20px;
-}
-
-.RPSS-AGMT-EULA {
-    position: relative;
+#RPSS-AGMT-EULA-Container h2 {
     font-family: "Inter Medium";
-    margin-left: 30px !important;
-    font-size: 20px;
 }
 
-#RPSS-AGMT-Foot {
-    position: relative;
+#RPSS-AGMT-EULA-Container span {
+    font-family: "Inter Regular";
+}
+
+#RPSS-AGMT-Footer {
+    margin-top: 25px;
     font-family: "Inter SemiBold";
-    font-size: 20px;
-    width: 800px;
-    top: 270px;
 }
 
 #RPSS-AGMT-AgreeEULA {
-    top: 320px;
-    left: 21px;
-    position: relative;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     font-family: "Inter Medium";
-    color: white;
-    display: table;
-    margin: 0 auto;
+}
+
+#RPSS-AGMT-AgreeEULA div {
+    display: flex;
+    align-items: center;
 }
 
 #RPSS-AGMT-Agree {
-    position: absolute;
-    left: -40px;
-    top: -1.5px;
+    border: 2px solid #2F81F7;
+    margin-right: 12px;
     width: 25px;
     height: 25px;
-    border: 2px solid #2F81F7;
     border-radius: 5px;
-    background: transparent;
+    background-color: transparent;
     cursor: pointer;
     appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
 }
 
 #RPSS-AGMT-Agree:checked {
-    background-image: url('chrome-extension://__MSG_@@extension_id__/resources/svg/check.svg');
-    background-size: 17px 17px;
-    background-repeat: no-repeat;
-    background-position: center;
+   background-image: url('chrome-extension://__MSG_@@extension_id__/resources/svg/check.svg');
+   background-size: 17px 17px;
+   background-repeat: no-repeat;
+   background-position: center;
 }
 
 #RPSS-AGMT-Countdown {
-    color: red !important;
-    position: relative;
-    font-family: "Inter Medium";
+    visibility: hidden;
     font-size: 16px;
-    top: 330px;
+    color: #ff0000;
+    font-family: "Inter Medium";
+    margin-top: 5px;
 }
 
-#RPSS-AGMT-Background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1049;
-}
+#RPSS-AGMT-EULA-Container::-webkit-scrollbar {
+    width: 10px;
+ }
 
-#RPSS-AGMT-Container span {
-    color: white;
-    display: table;
-    margin: 0 auto;
-}
+ /* Track */
+ #RPSS-AGMT-EULA-Container::-webkit-scrollbar-track {
+    background: none;
+ }
+
+ /* Handle */
+ #RPSS-AGMT-EULA-Container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+ }
+
+ /* Handle on hover */
+ #RPSS-AGMT-EULA-Container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+ }
+
+ #RPSS-AGMT-Background {
+     position: fixed;
+     inset: 0px;
+     width: 100%;
+     height: 100%;
+     background-color: #00000080;
+     z-index: 1049;
+ }
