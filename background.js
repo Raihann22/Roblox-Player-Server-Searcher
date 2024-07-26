@@ -3,27 +3,7 @@
  * GitHub Repository: https://github.com/Raihann22/Roblox-Player-Server-Searcher
  * LICENSE: https://choosealicense.com/licenses/mit
  * 
- * © 2023 Raihan
- */
-
-/**
- * ========== v2.0.0 Change logs ==========
- * - combine/move "wait-for-server-list-options.js" to page-game.js
- * - combine/move "search-layout.js" to page-game.js
- * - combine/move "auto-check-update.js" to content.js
- * - move almost all script in "content.js" to page-game.js
- * - move fonts, html and svg to resources folder
- * - made custom loading joing screen
- * - made from this version when installing newer version, the oldest version auto uninstalling itself
- * - made a popup when searching player in difference game, and can join by clickin Join button on the popup (for player that has Who Can Join set to public)
- * - made join.js
- * - dark and light mode for the serach layout
- * - some adjustment in search layout
- * - add player warning / status card
- * - add preview on readme
- * - and some fixs
- * - add description in the manifest.json
- * - incress version to v2.0.0
+ * © 2024 Raihan
  */
 
 
