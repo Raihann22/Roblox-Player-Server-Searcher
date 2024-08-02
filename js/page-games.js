@@ -25,24 +25,14 @@ let PLAYER_IN_OTHER_GAME_JS;
 
 
     function createLayout() {
-        const instancesHash = waitForServerListOptions();
-        if (!instancesHash) window.addEventListener("hashchange", waitForServerListOptions);
-
-        function waitForServerListOptions() {
-            if (window.location.hash.endsWith("game-instances")) {
-                const observer = new MutationObserver((mutationsList, observer) => {
-                    const element = document.querySelector(".server-list-options");
-                    if (element?.children?.length === 2) {
-                        observer.disconnect();
-                        appendLayout();
-                    }
-                });
-
-                observer.observe(document.body, { childList: true, subtree: true });
-                return true;
+        const observer = new MutationObserver((mutationsList, observer) => {
+            const element = document.querySelector(".server-list-options");
+            if (element?.children?.length === 2) {
+                observer.disconnect();
+                appendLayout();
             }
-            return false;
-        }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
 
         function appendLayout() {
             fetch(chrome.runtime.getURL("resources/html/layout.html")).then(result => result.text()).then(RPSSlayout => {
