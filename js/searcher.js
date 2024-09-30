@@ -5,6 +5,10 @@ const searchButton = document.getElementById("RPSS-SearchButton");
 const warningContainer = document.getElementById("RPSS-PSA-Container");
 const warningText = document.getElementById("RPSS-PSA-Warning");
 
+let serverSizeMoreThan5;
+let activePlayersInGame;
+let currentProgress = 0;
+
 userInput.addEventListener("input", () => {
     userInput.value = userInput.value.replace(/[^a-zA-Z0-9_]/g, '');
 
@@ -28,7 +32,12 @@ searchButton.addEventListener("click", async () => {
 
         disableInptBtn(true);
 
+        const gameDetail = await fetch(`https://games.roblox.com/v1/games?universeIds=${PLACE_UNIVERSE_ID}`).then(res => res.json());
+        serverSizeMoreThan5 = gameDetail.data[0].maxPlayers > 5;
+        activePlayersInGame = gameDetail.data[0].playing;
+
         const result = await findPlayer();
+        PROGRESS_BAR.style.width = "100%";
         switch (result[0]) {
             /**
              *  0 = User doesn't exist.
@@ -70,8 +79,6 @@ searchButton.addEventListener("click", async () => {
 
             default:
                 // player found!
-                PROGRESS_BAR.style.width = "100%";
-
                 const gameId = result[0].toString().length > 1 ? result[0] : result[1];
                 const avatar = result[0].toString().length > 1 ? result[1] : result[2];
                 const username = result[0].toString().length > 1 ? result[2] : result[3];
@@ -152,8 +159,7 @@ async function findPlayer() {
     if (playerStatus[0] !== 4) return playerStatus;
 
     let allTokens = [];
-    await fetchServers("");
-    return await fetchTokens();
+    return await fetchServers();
 
 
 
@@ -207,9 +213,25 @@ async function findPlayer() {
         });
     }
 
-    async function fetchServers(nextPageCursor) {
-        await fetch(`https://games.roblox.com/v1/games/${PLACE_ID}/servers/0?limit=100&cursor=${nextPageCursor}`).then(x => x.json()).then(async servers => {
-            const { nextPageCursor, data } = servers;
+    async function fetchServers(cursor = "") {
+        currentProgress = 0;
+
+        do {
+            if (cursor) await sleep(serverSizeMoreThan5 ? 20000 : 50);
+
+            const servers = await fetch(`https://games.roblox.com/v1/games/${PLACE_ID}/servers/0?limit=100&cursor=${cursor}`, {
+                /**
+                 * omit: will return all players, but can only send 3 requests per minute
+                 * include: only return 5 players (less likely to get rate limited)
+                 */
+                "credentials": serverSizeMoreThan5 ? "omit" : "include"
+            }).then(response => response.json());
+
+            const { nextPageCursor, data, errors } = servers;
+            if (errors) {
+                await sleep(serverSizeMoreThan5 ? 20000 : 1000);
+                continue; // retry
+            }
 
             for (let server of data) {
                 for (let playerToken of server.playerTokens) {
@@ -224,71 +246,78 @@ async function findPlayer() {
                 }
             }
 
-            if (!nextPageCursor) return;
+            const userRequestId = await fetchTokens();
+            if (userRequestId) return userRequestId;
 
-            await sleep(50)
-            return fetchServers(nextPageCursor);
-        })
+            cursor = nextPageCursor;
+            allTokens = [];
+        } while (cursor);
+
+        currentProgress = 100;
+        return [5];
     }
 
     async function fetchTokens() {
         if (allTokens.length === 0) return [4];
-        const onePercent = allTokens.length / 100;
-        let foundUser = [avatarImageUrl, username];
-        const maxParallelRequests = 20;
-        let checkedTokens = 0;
-        //checkUserBatch() returns true if the user is found, else returns false.
-        async function checkUserBatch(slice, attempts = 1) {
-            if (attempts > 3) return false; // Fail after 3 attempts
-            try {
-                const response = await fetch("https://thumbnails.roblox.com/v1/batch", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: "application/json"
-                    },
-                    body: JSON.stringify(slice)
-                });
-                const res = await response.json();
-                if (!res.data) throw new Error("No response data");
-                const targetUserData = res.data.find(data => data.imageUrl === avatarImageUrl);
-                //All tokens in the given slice are checked without any error
-                checkedTokens += slice.length;
-                //Updating progress bar
-                PROGRESS_BAR.style.width = `${Math.ceil(checkedTokens / onePercent)}%`;
-                if (targetUserData) {
-                    foundUser.unshift(targetUserData.requestId);
-                    return true;//User found
+        const foundUser = [avatarImageUrl, username];
+
+        const chunkedTokens = splitTokensIntoChunks(allTokens);
+        let redyToFetch = [];
+
+        for (let i = 0; i < chunkedTokens.length; i++) {
+            redyToFetch.push(chunkedTokens[i]);
+
+            if (redyToFetch.length === 50 || i === (chunkedTokens.length - 1)) {
+                const results = await Promise.all(redyToFetch.map(tokens => fetchThumbnails(tokens)));
+                redyToFetch = [];
+
+                if (results.some(found => found)) return foundUser;
+            }
+        }
+
+        async function fetchThumbnails(tokens) {
+            let attempts = 1
+            while (attempts <= 3) {
+                try {
+                    const response = await fetch("https://thumbnails.roblox.com/v1/batch", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                        body: JSON.stringify(tokens)
+                    }).then(x => x.json());
+                    if (response.errors) throw response.errors;
+
+
+                    const targetUserData = response.data.find(data => data.imageUrl === avatarImageUrl);
+                    if (targetUserData) {
+                        PROGRESS_BAR.style.width = "100%";
+
+                        foundUser.unshift(targetUserData.requestId);
+                        return true;
+                    }
+
+                    if (currentProgress !== 100) {
+                        const newProgress = (tokens.length / activePlayersInGame) * 100;
+                        PROGRESS_BAR.style.width = `${currentProgress += Number(newProgress.toFixed(5))}%`;
+                    };
+                    break;
+                } catch (error) {
+                    console.error(error);
+                    await sleep(Number(`${attempts}000`));
+                    console.log("[ERROR] Retrying...");
+                    attempts++
                 }
-                return false;//User not found in this slice
-            } catch (error) {
-                await sleep(50);
-                return await checkUserBatch(slice, attempts + 1);//Retry
             }
+
+            return false;
         }
-        //processSlices() returns true if any checkUserBatch() returned true otherwise returns false.
-        async function processSlices(slices) {
-            const results = await Promise.all(slices.map(slice => checkUserBatch(slice)));
-            return results.some(result => result === true);
-        }
-        for (let currentIndex = 0;
-            currentIndex < allTokens.length;
-            currentIndex += maxParallelRequests * 100) {
-            /*
-            slice = [allTokens[x], ...98x , allTokens[ (x+99) | (allTokens.length-1) ] ]
-            slices = [ slice, ...(maxParrallelRequests-2)x, slice ];
-            */
-            const slices = [];
-            for (let requestIndex = 0; requestIndex < maxParallelRequests; requestIndex++) {
-                const start = currentIndex + requestIndex * 100;
-                if (start >= allTokens.length) break;
-                slices.push(allTokens.slice(start, Math.min(start + 100, allTokens.length)));
+
+        function splitTokensIntoChunks(array) {
+            const result = [];
+            for (let i = 0; i < array.length; i += 100) {
+                // Slice the array into chunks of 100
+                result.push(array.slice(i, i + 100));
             }
-            const userFound = await processSlices(slices);
-            if (userFound) return foundUser;
+            return result;
         }
-        //Searched allTokens but couldn't find user, ensure the progress bar reaches 100%
-        PROGRESS_BAR.style.width = '100%';
-        return [5];
     }
 }
