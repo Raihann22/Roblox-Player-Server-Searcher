@@ -28,6 +28,7 @@
     font-size: 24px;
     margin-bottom: 5px;
     font-family: "Inter Bold";
+    text-align: center;
 }
 
 #RPSS-Joining-Container span:not(#RPSS-Joining-Username) {
