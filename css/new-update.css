@@ -1,14 +1,4 @@
 @font-face {
-    font-family: "Inter Black";
-    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Black.ttf");
-}
-
-@font-face {
-    font-family: "Inter ExtraBold";
-    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-ExtraBold.ttf");
-}
-
-@font-face {
     font-family: "Inter SemiBold";
     src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-SemiBold.ttf");
 }
@@ -18,80 +8,334 @@
     src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Regular.ttf");
 }
 
+@font-face {
+    font-family: "Inter Bold";
+    src: url("chrome-extension://__MSG_@@extension_id__/resources/fonts/Inter-Bold.ttf");
+}
 
+#RPSS-ACU-Changelog::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+#RPSS-ACU-Changelog::-webkit-scrollbar-track {
+    background: none;
+}
+
+/* Handle */
+#RPSS-ACU-Changelog::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+/* Handle on hover */
+#RPSS-ACU-Changelog::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
 
 #RPSS-ACU-Container {
-    width: 574px;
-    height: 409px;
     background-color: #0D1117;
-    border: 3px solid #ffffff;
-    transform: translate(-50%, -50%);
+    width: 575px;
+    height: fit-content;
+    max-height: calc(100% - 150px);
     position: fixed;
-    z-index: 1050;
-    top: 50%;
-    left: 50%;
-}
-
-#RPSS-ACU-Container span {
-    color: white;
-    display: table;
-    margin: 0 auto;
-}
-
-#RPSS-ACU-Close {
-    position: relative;
-    color: #828282;
-    width: 14px;
-    height: 14px;
-    top: 10px;
-    right: 10px;
-    float: right;
-    cursor: pointer;
-}
-
-#RPSS-ACU-Name {
-    position: relative;
-    font-family: "Inter Black";
-    font-size: 32px;
-    top: 50px;
-    left: 7px;
-}
-
-#RPSS-ACU-Available {
-    position: relative;
-    font-family: "Inter ExtraBold";
-    font-size: 27px;
-    top: 80px;
-}
-
-#RPSS-ACU-Versions {
     display: flex;
-    position: relative;
-    top: 130px;
+    flex-direction: column;
+    align-items: center;
+    inset: 0px;
+    margin: auto;
+    border: 2px solid white;
+    padding: 0.25rem;
+    z-index: 1050;
 }
 
-.RPSS-ACU-Version {
-    flex: 1;
+#RPSS-ACU-Title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.RPSS-ACU-Version span:nth-child(1) {
-    font-family: "Inter SemiBold";
+#RPSS-ACU-Title h1 {
+    color: white;
+    font-size: 32px;
+    font-family: "Inter Bold";
+    margin: 0px;
+}
+
+#RPSS-ACU-Title h2 {
+    color: #FFFFFFE6;
     font-size: 25px;
-}
-
-.RPSS-ACU-Version span:nth-child(2) {
-    font-family: "Inter Regular";
-    margin-top: 20px !important;
-    font-size: 24px;
-}
-
-#RPSS-ACU-Update {
-    position: relative;
     font-family: "Inter SemiBold";
-    font-size: 24px;
-    color: #2F81F7;
-    top: 200px;
+    margin: 0px;
+}
+
+#RPSS-ACU-Changelog {
+    height: fit-content;
+    overflow: auto;
+    margin: 0.75rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    color: white;
+    border-top: 3px dashed #13729e;
+    border-bottom: 3px dashed #13729e;
+}
+
+#RPSS-ACU-Footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 0.75rem;
+}
+
+#RPSS-ACU-VersionContainer {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 5px;
+    margin-bottom: 0.8rem;
+    border-radius: 0.25rem;
+    background-color: #282828;
+}
+
+#RPSS-ACU-VersionContainer span {
+    width: 24px;
+    height: 18px;
+    background-image: url("chrome-extension://__MSG_@@extension_id__/resources/svg/arrow-right-thin.svg");
+}
+
+#RPSS-ACU-VersionContainer div {
+    display: flex;
+    font-size: 17px;
+    font-family: "Inter Regular";
+}
+
+#RPSS-ACU-VersionContainer>div:first-child p {
+    color: #FF0000;
+}
+
+#RPSS-ACU-VersionContainer>div:last-child p {
+    color: #00FF29;
+}
+
+#RPSS-ACU-VersionContainer div p {
+    margin: 0;
+    padding: 0;
+}
+
+#RPSS-ACU-ButtonContainer button {
+    color: white;
+    font-size: 17px;
+    font-family: "Inter SemiBold";
+    padding: 5px;
+    border-radius: 0.25rem;
+    border: none;
+}
+
+
+
+/* ⬇⬇⬇   Github Markdown CSS   ⬇⬇⬇ */
+
+#RPSS-ACU-Changelog {
+    font: 400 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #fff;
+    background-color: #0D1117;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-feature-settings: "kern" 1;
+    -moz-font-feature-settings: "kern" 1;
+    -o-font-feature-settings: "kern" 1;
+    font-feature-settings: "kern" 1;
+    font-kerning: normal;
+}
+
+@media only screen and (max-width: 600px) {
+    #RPSS-ACU-Changelog {
+        padding: 5px;
+    }
+
+    #RPSS-ACU-Changelog>#content {
+        padding: 0px 20px 20px 20px !important;
+    }
+}
+
+#RPSS-ACU-Changelog>#content {
+    margin: 0px;
+    max-width: 900px;
+    border: 1px solid #e1e4e8;
+    padding: 10px 40px;
+    padding-bottom: 20px;
+    border-radius: 2px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#RPSS-ACU-Changelog summary {
+    cursor: pointer;
     text-decoration: underline;
-    display: table;
-    margin: 0 auto;
+}
+
+#RPSS-ACU-Changelog hr {
+    color: #bbb;
+    background-color: #bbb;
+    height: 1px;
+    flex: 0 1 auto;
+    margin: 1em 0;
+    padding: 0;
+    border: none;
+}
+
+#RPSS-ACU-Changelog .hljs-operator {
+    color: #868686;
+}
+
+/* Links */
+#RPSS-ACU-Changelog a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+#RPSS-ACU-Changelog a:visited {
+    color: #0366d6;
+}
+
+#RPSS-ACU-Changelog a:hover {
+    color: #0366d6;
+    text-decoration: underline;
+}
+
+#RPSS-ACU-Changelog pre {
+    background-color: #f6f8fa;
+    border-radius: 3px;
+    font-size: 85%;
+    line-height: 1.45;
+    overflow: auto;
+    padding: 16px;
+}
+
+/* Code blocks */
+#RPSS-ACU-Changelog code {
+    background-color: rgba(27, 31, 35, .05);
+    border-radius: 3px;
+    font-size: 85%;
+    margin: 0;
+    word-wrap: break-word;
+    padding: .2em .4em;
+    font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
+}
+
+#RPSS-ACU-Changelog pre>code {
+    background-color: transparent;
+    border: 0;
+    display: inline;
+    line-height: inherit;
+    margin: 0;
+    overflow: visible;
+    padding: 0;
+    word-wrap: normal;
+    font-size: 100%;
+}
+
+/* Blockquotes */
+#RPSS-ACU-Changelog blockquote {
+    margin-left: 30px;
+    margin-top: 0px;
+    margin-bottom: 16px;
+    border-left-width: 3px;
+    padding: 0 1em;
+    color: #828282;
+    border-left: 4px solid #e8e8e8;
+    padding-left: 15px;
+    font-size: 18px;
+    letter-spacing: -1px;
+    font-style: italic;
+}
+
+#RPSS-ACU-Changelog blockquote * {
+    font-style: normal !important;
+    letter-spacing: 0;
+    color: #6a737d !important;
+}
+
+/* Tables */
+#RPSS-ACU-Changelog table {
+    border-spacing: 2px;
+    display: block;
+    font-size: 14px;
+    overflow: auto;
+    width: 100%;
+    margin-bottom: 16px;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+#RPSS-ACU-Changelog td {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+}
+
+#RPSS-ACU-Changelog th {
+    font-weight: 600;
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+}
+
+#RPSS-ACU-Changelog tr {
+    background-color: #fff;
+    border-top: 1px solid #c6cbd1;
+}
+
+#RPSS-ACU-Changelog table tr:nth-child(2n) {
+    background-color: #f6f8fa;
+}
+
+/* Others */
+#RPSS-ACU-Changelog img {
+    max-width: 100%;
+}
+
+#RPSS-ACU-Changelog p {
+    line-height: 24px;
+    font-weight: 400;
+    font-size: 16px;
+    color: #e6edf3;
+}
+
+#RPSS-ACU-Changelog ul {
+    margin-top: 0;
+}
+
+#RPSS-ACU-Changelog li {
+    color: #e6edf3;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+#RPSS-ACU-Changelog li+li {
+    margin-top: 0.25em;
+}
+
+#RPSS-ACU-Changelog * {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    color: #e6edf3;
+}
+
+#RPSS-ACU-Changelog h1,
+#RPSS-ACU-Changelog h2,
+#RPSS-ACU-Changelog h3 {
+    border-bottom: 1px solid #eaecef;
+    color: #fff;
+}
+
+#RPSS-ACU-Changelog code>* {
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace !important;
+}
+
+#RPSS-ACU-Background {
+    position: fixed;
+    inset: 0px;
+    width: 100%;
+    height: 100%;
+    background-color: #00000080;
+    z-index: 1049;
 }
