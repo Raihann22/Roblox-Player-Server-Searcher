@@ -36,7 +36,8 @@
     },
     {
       "matches": [
-        "https://*.roblox.com/games/*"
+        "https://*.roblox.com/games/*",
+        "https://*.roblox.com/*/games/*"
       ],
       "js": [
         "js/page-games.js"
