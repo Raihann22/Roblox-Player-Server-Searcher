@@ -16,7 +16,7 @@ function loading(avatar, username, customServer) {
                 stageOneHeight = element.style.height;
 
                 element.innerHTML = JOIN_HTML;
-                element.children[0].children[0].src = avatar.replace("/isCircular", "");
+                element.children[0].children[0].src = avatar.replace("isCircular", "noFilter");
                 element.children[0].children[1].innerHTML = customServer ? `@${username} is in a custom server.` : `Joining @${username}`;
                 
                 if (customServer) {
